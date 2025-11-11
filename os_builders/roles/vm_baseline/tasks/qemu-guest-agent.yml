@@ -15,10 +15,10 @@
   ansible.builtin.systemd_service:
     name: qemu-guest-agent.service
     enabled: true
-  when: ansible_version.minor >= 11
+  when: ansible_version.full is version('2.11.0', ">=")
 
 - name: Enable Qemu Guest Agent for RL 8
   ansible.builtin.systemd:
     name: qemu-guest-agent.service
     enabled: true
-  when: ansible_version.minor < 11
+  when: ansible_version.full is version('2.11.0', "<")
