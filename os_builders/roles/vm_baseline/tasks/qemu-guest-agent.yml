@@ -15,10 +15,10 @@
   ansible.builtin.systemd_service:
     name: qemu-guest-agent.service
     enabled: true
-  when: ansible_distribution not in ["Rocky"] and ansible_distribution_major_version | int != 8
+  when: ansible_version.minor >= 11
 
 - name: Enable Qemu Guest Agent for RL 8
   ansible.builtin.systemd:
     name: qemu-guest-agent.service
     enabled: true
-  when: ansible_distribution in ["Rocky"] and ansible_distribution_major_version | int == 8
+  when: ansible_version.minor < 11
