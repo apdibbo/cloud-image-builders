@@ -19,6 +19,7 @@
   become: true
 
 - name: Enable root login for authorized admins
+  become: true
   block:
     - debug:
         msg: "ROOT_PASSWORD is undefined, disabling password based login.  Please set it in your environment."
@@ -66,7 +67,6 @@
         dest: /etc/sudoers.d/cloud-team-user
         content: "cloud ALL=(ALL) NOPASSWD:ALL\n"
         mode: 0440
-  become: true
 
 - name: Ensure cloud user SSH directory exists
   file:
