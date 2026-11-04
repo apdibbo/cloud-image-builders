@@ -17,7 +17,7 @@
         types: [deb]
         uris: "https://apt.releases.hashicorp.com"
         signed_by: "https://apt.releases.hashicorp.com/gpg"
-        suites: ["{{ ansible_distribution_release|lower }}"]
+        suites: ["{{ ansible_facts['distribution_release'] |lower }}"]
         components: [main]
         state: present
         enabled: yes
@@ -31,7 +31,7 @@
         state: present
         update_cache: true
       become: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
 
 - name: Set up repository on RedHat
   block:
@@ -50,6 +50,6 @@
         name: packer
         state: present
   become: true
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts['os_family'] == "RedHat"
 
 
