@@ -18,6 +18,15 @@
 
 - name: Prepare the image with the STFC security baseline
   hosts: all
+  pre_tasks:
+    - name: Check if we are in a container from the GitHub workflows
+      become: true
+      ansible.builtin.command: "cat /proc/self/cgroup"
+      register: in_container_check
+
+    - name: Set_fact for checking container for subsequent steps
+      ansible.builtin.set_fact:
+        in_container: "{{ in_container_check.stdout == '0::/' }}"
   roles:
     - role: image_create
     - role: vm_baseline
