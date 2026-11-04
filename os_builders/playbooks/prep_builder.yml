@@ -8,3 +8,4 @@
     - name: Initialise Packer
       command:
         cmd: packer init .
+        chdir: "{{ playbook_dir }}/.."
