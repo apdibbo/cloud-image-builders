@@ -24,13 +24,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      
+
       - name: Exec Amphora build
         run: |
           cd $GITHUB_WORKSPACE/amphora-image-builder
           ./build.sh
           sudo chown -R $USER:$USER $GITHUB_WORKSPACE/output
-      
+        env:
+          DIB_OS_BUILDERS_GIT_REPO: "${{ github.event.pull_request.head.repo.full_name || github.repository }}"
+          DIB_OS_BUILDERS_GIT_REVISION: "${{ github.event.pull_request.head.sha || github.sha }}"
+
       - name: Check image is valid
         run: |
           cd $GITHUB_WORKSPACE 
@@ -41,7 +44,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE 
           sha256sum output/amphora-x64-$(date +%Y-%m-%d)-haproxy.qcow2 > output/amphora-x64-$(date +%Y-%m-%d)-haproxy.qcow2.sha256
-      
+
       - name: Upload image
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
