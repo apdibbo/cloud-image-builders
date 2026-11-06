@@ -1,0 +1,16 @@
+# Set buffer size
+-b 8192
+
+# Monitor root execution actions (Execve)
+-a always,exit -F arch=b64 -S execve -F euid=0 -k audit-wazuh-c
+-a always,exit -F arch=b32 -S execve -F euid=0 -k audit-wazuh-c
+
+# Monitor write/modify attempts to vital identity files
+-w /etc/passwd -p wa -k identity
+-w /etc/group -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/sudoers -p wa -k identity
+
+# Monitor system configuration changes
+-w /etc/hostname -p wa -k system-cfg
+-w /etc/issue -p wa -k system-cfg

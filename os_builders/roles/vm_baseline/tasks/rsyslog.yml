@@ -35,3 +35,35 @@
     group: root
     mode: 0755
   become: true
+
+- name: Ensure autditd is installed
+  package:
+    name: auditd
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Ensure auditd is installed
+  package:
+    name:
+      - audit
+      - audispd-plugins
+    state: present
+  become: true
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure auditd service is started and enabled
+  ansible.builtin.service:
+    name: auditd
+    state: started
+    enabled: true
+  when: not in_container
+
+- name: Deploy Wazuh specific auditd rules
+  ansible.builtin.template:
+    src: wazuh_auditd.j2
+    dest: /etc/audit/rules.d/wazuh.rules
+    owner: root
+    group: root
+    mode: '0600'
+  notify: Reload auditd rules

@@ -1,0 +1,10 @@
+---
+- name: Reload auditd rules
+  ansible.builtin.command: /sbin/augenrules --load
+  failed_when: false
+
+- name: Restart wazuh-agent
+  ansible.builtin.service:
+    name: wazuh-agent
+    state: restarted
+  when: not in_container
