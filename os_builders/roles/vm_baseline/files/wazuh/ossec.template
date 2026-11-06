@@ -290,4 +290,10 @@
     <disabled>yes</disabled>
   </cluster>
 
+  <client_buffer>
+    <disabled>no</disabled>
+    <queue_size>50000</queue_size>
+    <events_per_second>1000</events_per_second>
+  </client_buffer>
+
 </ossec_config>
