@@ -1,8 +1,22 @@
-- name: Make sure perl is installed
-  become: true
-  ansible.builtin.package:
+- name: Ensure perl is installed (Ubuntu)
+  ansible.builtin.apt:
     name: perl
-    state: latest
+    state: present
+  when: ansible_facts['distribution'] == "Ubuntu"
+  become: true
+
+- name: Ensure perl is installed (RedHat)
+  ansible.builtin.dnf:
+    name: perl
+    state: present
+    enablerepo: >-
+      {{
+         ['rocky-upstream-baseos', 'rocky-upstream-appstream'] if
+         not dnf_baseos_enabled or not dnf_appstream_enabled
+         else omit
+      }}
+  when: ansible_facts['distribution'] == "Rocky"
+  become: true
 
 - name: Copy Pakiti client script
   become: true

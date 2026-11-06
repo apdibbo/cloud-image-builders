@@ -2,9 +2,9 @@
 
 set -euxo pipefail
 
-if ls /home/cloud
+if ls {{ cloud_user_homedir }}
 then
-    KEYSPATH=/home/cloud
+    KEYSPATH={{ cloud_user_homedir }}
 else
     KEYSPATH=/root
 fi

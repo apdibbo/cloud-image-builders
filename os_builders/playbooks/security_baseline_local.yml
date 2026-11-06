@@ -1,0 +1,4 @@
+- name: Prepare the local machine with the STFC security baseline
+  hosts: localhost
+  roles:
+    - role: vm_baseline

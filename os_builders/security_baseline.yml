@@ -1,0 +1,4 @@
+- name: Prepare the image with the STFC security baseline
+  hosts: all
+  roles:
+    - role: vm_baseline

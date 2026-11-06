@@ -1,22 +1,58 @@
-- name: Install wget
-  package:
+- name: Ensure wget is installed (Ubuntu)
+  ansible.builtin.apt:
     name: wget
     state: present
+  when: ansible_facts['distribution'] == "Ubuntu"
+  become: true
+
+- name: Ensure wget is installed (RedHat)
+  ansible.builtin.dnf:
+    name: wget
+    state: present
+    enablerepo: >-
+      {{
+         ['rocky-upstream-baseos', 'rocky-upstream-appstream'] if
+         not dnf_baseos_enabled or not dnf_appstream_enabled
+         else omit
+      }}
+  when: ansible_facts['distribution'] == "Rocky"
   become: true
 
 - name: Enable root login for authorized admins
+  become: true
   block:
     - debug:
         msg: "ROOT_PASSWORD is undefined, disabling password based login.  Please set it in your environment."
       when: not lookup('env', 'ROOT_PASSWORD')
 
-    - name: Enable root account
-      user:
-        name: cloud
-        state: present
-        shell: /bin/bash
-        # If a password is not set in the environment, disable password based login
-        password: "{{ lookup('env', 'ROOT_PASSWORD', default='!') }}"
+    - name: Create a cloud user
+      block:
+        - name: Set a fact about the cloud user home directory
+          ansible.builtin.set_fact:
+            cloud_user_homedir: "/home/cloud"
+        
+        - name: Create a cloud user at {{ cloud_user_homedir }}
+          user:
+            name: cloud
+            state: present
+            shell: /bin/bash
+            home: "{{ cloud_user_homedir }}"
+            # If a password is not set in the environment, disable password based login
+            password: "{{ lookup('env', 'ROOT_PASSWORD', default='!') }}"
+
+      rescue:
+        - name: Set a fact about the cloud user home directory
+          ansible.builtin.set_fact:
+            cloud_user_homedir: "/var/lib/users/cloud"
+        
+        - name: Create a cloud user at {{ cloud_user_homedir }}
+          user:
+            name: cloud
+            state: present
+            shell: /bin/bash
+            home: "{{ cloud_user_homedir }}"
+            # If a password is not set in the environment, disable password based login
+            password: "{{ lookup('env', 'ROOT_PASSWORD', default='!') }}"
 
     - name: Ensure cloud sudoers.d directory exists
       file:
@@ -31,11 +67,10 @@
         dest: /etc/sudoers.d/cloud-team-user
         content: "cloud ALL=(ALL) NOPASSWD:ALL\n"
         mode: 0440
-  become: true
 
-- name: Ensure cloud home directory exists
+- name: Ensure cloud user SSH directory exists
   file:
-    path: "/home/cloud/.ssh"
+    path: "{{ cloud_user_homedir }}/.ssh"
     state: directory
     owner: cloud
     group: cloud
@@ -45,15 +80,15 @@
 - name: Copy authorized cloud admin keys into cloud's authorized_keys
   copy:
     src: "authorized_keys"
-    dest: "/home/cloud/.ssh/authorized_keys"
+    dest: "{{ cloud_user_homedir }}/.ssh/authorized_keys"
     owner: cloud
     group: cloud
     mode: 0600
   become: true
 
 - name: Copy authorized key update script in
-  copy:
-    src: "update_keys.sh"
+  template:
+    src: "update_keys.sh.j2"
     dest: "/usr/local/sbin/update_keys.sh"
     owner: root
     group: root

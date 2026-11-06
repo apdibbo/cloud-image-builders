@@ -13,5 +13,11 @@
       - glibc-locale-source
       - glibc-langpack-en
     state: present
+    enablerepo: >-
+      {{
+         ['rocky-upstream-baseos', 'rocky-upstream-appstream'] if
+         not dnf_baseos_enabled or not dnf_appstream_enabled
+         else omit
+      }}
   become: true
   when: ansible_facts['os_family']  == "RedHat"

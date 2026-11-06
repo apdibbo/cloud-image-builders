@@ -1,0 +1,33 @@
+---
+- name: Configure Rocky Linux repos
+  become: true
+  block:
+    - name: Determine if the BaseOS and Appstream repos are enabled
+      ansible.builtin.command:
+        cmd: dnf repolist
+      changed_when: false
+      register: dnf_repolist
+
+    - name: Set a fact about enabled repos
+      ansible.builtin.set_fact:
+        dnf_baseos_enabled: "{{ 'baseos' in dnf_repolist.stdout | lower }}"
+        dnf_appstream_enabled: "{{ 'appstream' in dnf_repolist.stdout | lower }}"
+
+    - name: Ensure upstream Rocky repo files are present
+      ansible.builtin.yum_repository:
+        name: "{{ item.name }}"
+        mirrorlist: "{{ item.mirrorlist }}"
+        description: "{{ item.description }}"
+        file: rocky-upstream
+        enabled: false
+        state: "{{ item.state }}"
+      when: not dnf_baseos_enabled or not dnf_appstream_enabled
+      loop:
+        - name: "rocky-upstream-baseos"
+          mirrorlist: "https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-$releasever$rltype"
+          description: "Rocky Linux $releasever - BaseOS"
+          state: "{{ 'absent' if dnf_baseos_enabled else 'present' }}"
+        - name: rocky-upstream-appstream
+          mirrorlist: "https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=AppStream-$releasever$rltype"
+          description: "Rocky Linux $releasever - AppStream"
+          state: "{{ 'absent' if dnf_appstream_enabled else 'present' }}"

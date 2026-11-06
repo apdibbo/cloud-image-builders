@@ -9,10 +9,8 @@
   ansible.builtin.set_fact:
     vm_baseline_in_container: "{{ vm_baseline_in_container_check.stdout == '0::/' }}"
 
-- include_tasks: update.yml
-- include_tasks: get-package-facts.yml
-- include_tasks: packages.yml
-
+- include_tasks: yum-repos.yml
+  when: ansible_facts['os_family']  == "RedHat"
 - include_tasks: cron.yml
 - include_tasks: locale.yml
 

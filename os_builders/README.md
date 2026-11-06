@@ -189,12 +189,12 @@ The image configuration is based on the Ansible playbooks run by Packer. If we w
 
 4. Run the baseline against the VM
   ```shell
-  ansible-playbook -i inventory configure_os_images.yml
+  ansible-playbook -i inventory playbooks/configure_os_images.yml
   ```
 
 5. If it is an AQ image, run the quattor playbook
   ```shell
-  ansible-playbook -i inventory quattor.yml
+  ansible-playbook -i inventory playbooks/quattor.yml
   ```
 6. Repeat steps 5-6 making changes to the playbooks
 

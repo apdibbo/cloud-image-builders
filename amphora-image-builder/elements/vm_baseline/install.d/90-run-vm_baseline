@@ -7,7 +7,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install gpg-agent ansible locales -y
 sudo apt-get clean all
 /usr/bin/gpg-agent --daemon
 
-/usr/bin/git clone https://github.com/stfc/cloud-image-builders.git --depth=1
+/usr/bin/git clone "https://github.com/${DIB_OS_BUILDERS_GIT_REPO:-stfc/cloud-image-builders}.git" cloud-image-builders
 
 sudo locale-gen en_US.UTF-8
 
@@ -17,11 +17,15 @@ export LC_CTYPE=en_US.UTF-8
 
 cd cloud-image-builders
 
+if [ -n "${DIB_OS_BUILDERS_GIT_REVISION:-}" ]; then
+  /usr/bin/git checkout "${DIB_OS_BUILDERS_GIT_REVISION}"
+fi
+
 hostname
 sed -i "s/hosts: default/hosts: localhost/g" os_builders/*.yml
 mkdir -p /var/ossec/etc/extra
 echo "{\"groups\": [\"default\", \"cloud\", \"ubuntu\", \"debian\", \"octavia-amphora\"], \"labels\": {\"amphora-build-date\": \"$(date '+%Y-%m-%d %H:%M:%S')\" }}" > /var/ossec/etc/extra/03-amphora.json
-ansible-playbook os_builders/configure_os_images.yml -i .github/localhost.yml
+ansible-playbook os_builders/playbooks/configure_os_images.yml -i .github/localhost.yml
 echo "130.246.210.20 wazuh.cape.stfc.ac.uk" >> /etc/hosts
 
 apt-get autoremove -y

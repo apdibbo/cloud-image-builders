@@ -20,7 +20,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y ansible
             cd os_builders
-            ansible-playbook prep_builder.yml
+            ansible-playbook playbooks/prep_builder.yml
 
         - name: Validate packer files
           run: |
@@ -50,7 +50,7 @@ jobs:
           run: |
             . venv/bin/activate
             cd os_builders
-            ansible-playbook configure_os_images.yml -i ../.github/localhost.yml
+            ansible-playbook playbooks/configure_os_images.yml -i ../.github/localhost.yml
 
   test_image_build_rocky:
     strategy:
@@ -68,5 +68,4 @@ jobs:
       - name: Run configure_os_images playbook
         run: |
           cd os_builders
-          ansible-playbook configure_os_images.yml -i ../.github/localhost.yml
-
+          ansible-playbook playbooks/configure_os_images.yml -i ../.github/localhost.yml

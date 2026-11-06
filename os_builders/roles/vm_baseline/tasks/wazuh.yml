@@ -44,11 +44,13 @@
         owner: root
         group: root
         mode: 0644
+      become: true
 
     - name: write out wazuh extra config
       copy:
         dest: /var/ossec/etc/extra/01-ansible-baseline.json
         content: "{{ wazuh_extra_json }}"
+      become: true
 
     - name: Copy wazuh client enrichment script
       copy:
@@ -56,7 +58,8 @@
         dest: "/var/ossec/bin/enrich-wazuh-agent.py"
         owner: root
         group: wazuh
-        mode: 0754
+        mode: 0755
+      become: true
 
     - name: Ensure wazuh-agent drop in config directory exists
       file:
@@ -65,6 +68,7 @@
         owner: root
         group: root
         mode: 0644
+      become: true
 
     - name: Copy wazuh drop in unit
       copy:
@@ -73,6 +77,7 @@
         owner: root
         group: root
         mode: 0644
+      become: true
 
     - name: Copy wazuh config template
       copy:
@@ -81,6 +86,7 @@
         owner: root
         group: wazuh
         mode: 0754
+      become: true
 
     - name: Copy wazuh local internal config
       copy:
@@ -89,30 +95,23 @@
         owner: root
         group: wazuh
         mode: 0750
+      become: true
 
     - name: Update template file with groups
       replace:
         path: "/var/ossec/etc/ossec.template"
         regexp: "AGENT_GROUPS"
         replace: "{{ wazuh_groups | join(',') }}"
-
-    - name: Enable wazuh-agent service
       become: true
-      ansible.builtin.command:
-        cmd: "systemctl enable wazuh-agent.service"
-      ignore_errors: true
 
     - name: get service facts
       ansible.builtin.service_facts:
 
-    - name: Stop wazuh-agent service
+    - name: Enable systemd service
       become: true
-      ansible.builtin.command:
-        cmd: "systemctl stop wazuh-agent.service"
-      ignore_errors: true
-
-    - name: Clean Wazuh agent history
-      file:
-        path: "/var/ossec/etc/client.keys"
-        state: absent
-  become: true
+      ansible.builtin.systemd_service:
+        name: wazuh-agent.service
+        enabled: true
+        state: restarted
+        daemon_reload: true
+      when: not vm_baseline_in_container

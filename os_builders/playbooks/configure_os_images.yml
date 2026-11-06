@@ -8,34 +8,29 @@
 
 - name:
   hosts: all
-  gather_facts: false
+  gather_facts: false  # This is required if we potentially don't have Python available on the target
   pre_tasks:
     - name: User warning
       ansible.builtin.debug:
         msg: "[Warning] Do not run on non-cloud machine"
   roles:
-    # This is required if we potentially don't have Python available on the target
     - role: ensure_python
 
 - name: Prepare the image with the STFC security baseline
   hosts: all
   pre_tasks:
     - name: Check if we are in a container from the GitHub workflows
+      become: true
       ansible.builtin.command: "cat /proc/self/cgroup"
       register: in_container_check
-      changed_when: false
 
-    - name: Set fact if we're in a container
+    - name: Set_fact for checking container for subsequent steps
       ansible.builtin.set_fact:
         in_container: "{{ in_container_check.stdout == '0::/' }}"
-
-    - name: Print if we're in a container
-      ansible.builtin.debug:
-        msg: "Running in a container: {{ in_container }}"
   roles:
+    - role: image_create
     - role: vm_baseline
     - role: container_registry
     - role: nubes_boot
     - role: image_fixes
     - role: tidy_image
-    - role: run_test
