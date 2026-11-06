@@ -10,12 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added:
 - Added the testing_os_images.yml playbook and run_test role. [#239](https://github.com/stfc/cloud-image-builders/pull/239)
 - Added the Ubuntu 26 and Rocky 10 images to the builders. [#191](https://github.com/stfc/cloud-image-builders/pull/191)
+- Added auditd to VMs to increase coverage for security monitoring with Wazuh [#255][https://github.com/stfc/cloud-image-builders/pull/255]
 
 ### Fixed:
 - Various CI fixes, including making sure Ubuntu 26 and RL10 gets tested, the regression tests run, and resolving warnings flagged by ansible-lint or the CI pipeline. [#241](https://github.com/stfc/cloud-image-builders/pull/241)
 
 ### Changed:
 - Changed default root user, for qemu-guest-agent, to cloud. [#248](https://github.com/stfc/cloud-image-builders/pull/248)
+- Added client buffer tuning to the wazuh agent to handle larger log loads [#255][https://github.com/stfc/cloud-image-builders/pull/255]
 
 ### Removed:
 - Removed the Azimuth builds as these images aren't being used currently. [#243](https://github.com/stfc/cloud-image-builders/pull/243)
