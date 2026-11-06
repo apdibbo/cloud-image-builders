@@ -53,6 +53,7 @@
   when: ansible_os_family == "RedHat"
 
 - name: Ensure auditd service is started and enabled
+  become: true
   ansible.builtin.service:
     name: auditd
     state: started
@@ -60,6 +61,7 @@
   when: not in_container
 
 - name: Deploy Wazuh specific auditd rules
+  become: true
   ansible.builtin.copy:
     src: wazuh/wazuh_auditd
     dest: /etc/audit/rules.d/wazuh.rules

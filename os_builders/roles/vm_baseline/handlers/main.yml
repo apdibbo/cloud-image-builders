@@ -1,9 +1,11 @@
 ---
 - name: Reload auditd rules
+  become: true
   ansible.builtin.command: /sbin/augenrules --load
   failed_when: false
 
 - name: Restart wazuh-agent
+  become: true
   ansible.builtin.service:
     name: wazuh-agent
     state: restarted
