@@ -60,8 +60,8 @@
   when: not in_container
 
 - name: Deploy Wazuh specific auditd rules
-  ansible.builtin.template:
-    src: wazuh/wazuh_auditd.j2
+  ansible.builtin.copy:
+    src: wazuh/wazuh_auditd
     dest: /etc/audit/rules.d/wazuh.rules
     owner: root
     group: root
