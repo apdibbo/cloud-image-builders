@@ -61,7 +61,7 @@
 
 - name: Deploy Wazuh specific auditd rules
   ansible.builtin.template:
-    src: wazuh_auditd.j2
+    src: wazuh/wazuh_auditd.j2
     dest: /etc/audit/rules.d/wazuh.rules
     owner: root
     group: root
